@@ -16,6 +16,10 @@ let currentMode = 'chat';
 let messageHistory = [];
 let isStreaming = false;
 
+// Configurações PWA
+let deferredPrompt;
+let isOnline = navigator.onLine;
+
 // Elementos do DOM
 const elements = {
     modeButtons: document.querySelectorAll('.mode-selector button'),
@@ -35,7 +39,9 @@ const elements = {
     toggleSidebar: document.querySelector('.toggle-sidebar'),
     shareBtn: document.getElementById('share-btn'),
     shareMenu: document.querySelector('.share-menu'),
-    shareOptions: document.querySelectorAll('.share-option')
+    shareOptions: document.querySelectorAll('.share-option'),
+    sidebarOverlay: document.querySelector('.sidebar-overlay'),
+    closeSidebarBtn: document.querySelector('.close-sidebar')
 };
 
 // Configurações dos modos
@@ -116,6 +122,33 @@ function init() {
     if (chats.length === 0) {
         createNewChat();
     }
+
+    // Adicionar botão de instalação
+    addInstallButton();
+
+    // Verificar suporte a PWA
+    if ('serviceWorker' in navigator) {
+        console.log('PWA suportado');
+    }
+
+    // Configurar eventos do menu mobile
+    elements.toggleSidebar.addEventListener('click', toggleSidebar);
+    elements.closeSidebarBtn.addEventListener('click', closeSidebar);
+    elements.sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // Fechar sidebar ao clicar em um chat
+    elements.chatHistory.addEventListener('click', (e) => {
+        if (e.target.closest('.chat-item') && window.innerWidth <= 1024) {
+            closeSidebar();
+        }
+    });
+
+    // Adicionar listener para redimensionamento da janela
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) {
+            closeSidebar();
+        }
+    });
 }
 
 // Funções principais
@@ -135,6 +168,13 @@ async function handleSend() {
         
         if (cachedResponse) {
             handleCachedResponse(cachedResponse, userInput);
+            return;
+        }
+
+        // Verificar conexão
+        if (!isOnline) {
+            addMessage('assistant', 'Você está offline. Algumas funcionalidades podem estar limitadas.');
+            updateStatus('Offline');
             return;
         }
 
@@ -188,6 +228,14 @@ async function handleSend() {
                     { role: "user", content: userInput },
                     { role: "assistant", content: response }
                 ];
+            }
+
+            // Adicionar notificação para respostas longas
+            if (response.length > 100) {
+                sendNotification('Resposta pronta', {
+                    body: 'Sua resposta foi gerada com sucesso!',
+                    icon: 'icons/icon-192x192.png'
+                });
             }
         }
 
@@ -502,6 +550,13 @@ function saveChats() {
         if (currentChatId) {
             localStorage.setItem('currentChatId', currentChatId);
         }
+
+        // Sincronizar com o cache do Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.sync.register('sync-messages');
+            });
+        }
     } catch (error) {
         console.error('Erro ao salvar chats:', error);
         alert('Erro ao salvar a conversa. O armazenamento local pode estar cheio.');
@@ -715,8 +770,79 @@ function exportChat(chat) {
 
 // Funções de UI
 function toggleSidebar() {
-    elements.sidebar.classList.toggle('active');
+    const sidebar = elements.sidebar;
+    const overlay = elements.sidebarOverlay;
+    const toggleBtn = elements.toggleSidebar;
+    
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    toggleBtn.classList.toggle('active');
+    
+    // Prevenir scroll do body quando a sidebar estiver aberta
+    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
 }
+
+function closeSidebar() {
+    const sidebar = elements.sidebar;
+    const overlay = elements.sidebarOverlay;
+    const toggleBtn = elements.toggleSidebar;
+    
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    toggleBtn.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Adicionar botão de instalação do PWA
+function addInstallButton() {
+    const installButton = document.createElement('button');
+    installButton.className = 'install-pwa-btn';
+    installButton.innerHTML = '<i class="fas fa-download"></i> Instalar App';
+    installButton.style.display = 'none';
+    installButton.onclick = installPWA;
+    
+    document.querySelector('.header').appendChild(installButton);
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installButton.style.display = 'block';
+    });
+}
+
+// Função para instalar PWA
+async function installPWA() {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+        console.log('PWA instalado com sucesso');
+    }
+    
+    deferredPrompt = null;
+}
+
+// Função para enviar notificação
+function sendNotification(title, options = {}) {
+    if (!('Notification' in window)) return;
+    
+    if (Notification.permission === 'granted') {
+        new Notification(title, options);
+    }
+}
+
+// Adicionar listeners para estado online/offline
+window.addEventListener('online', () => {
+    isOnline = true;
+    updateStatus('Online');
+});
+
+window.addEventListener('offline', () => {
+    isOnline = false;
+    updateStatus('Offline - Algumas funcionalidades podem estar limitadas');
+});
 
 // Inicializar aplicação
 init(); 

@@ -3,17 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="description" content="Assistente virtual com múltiplos modos de chat">
     <title>Chat IA Web</title>
     <link rel="stylesheet" href="style.css">
     <!-- Adicionar ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Chat">
 </head>
 <body>
     <div class="app-layout">
+        <!-- Overlay para fechar a sidebar -->
+        <div class="sidebar-overlay"></div>
+
         <!-- Sidebar com Histórico -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>Chat IA Web</h2>
+                <button class="close-sidebar">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
             <button class="new-chat-btn">
@@ -27,7 +42,7 @@
         </aside>
 
         <!-- Conteúdo Principal -->
-        <div class="main-content">
+        <main class="main-content">
             <div class="container">
                 <header>
                     <div class="action-buttons">
@@ -57,28 +72,26 @@
                     </div>
                 </header>
 
-                <main>
-                    <div class="chat-area">
-                        <div class="messages" id="messages"></div>
-                        
-                        <div class="custom-settings" style="display: none;">
-                            <input type="text" id="system-prompt" placeholder="Contexto do sistema (opcional)">
-                            <label>
-                                <input type="checkbox" id="use-stream"> Usar streaming
-                            </label>
-                        </div>
-
-                        <div class="input-area">
-                            <textarea id="user-input" placeholder="Digite sua mensagem..." rows="3"></textarea>
-                            <button id="send-button">Enviar</button>
-                        </div>
+                <div class="chat-area">
+                    <div class="messages" id="messages"></div>
+                    
+                    <div class="custom-settings" style="display: none;">
+                        <input type="text" id="system-prompt" placeholder="Contexto do sistema (opcional)">
+                        <label>
+                            <input type="checkbox" id="use-stream"> Usar streaming
+                        </label>
                     </div>
 
-                    <div class="generated-scripts" style="display: none;">
-                        <h3>Scripts Gerados</h3>
-                        <div class="scripts-list" id="scripts-list"></div>
+                    <div class="input-area">
+                        <textarea id="user-input" placeholder="Digite sua mensagem..." rows="3"></textarea>
+                        <button id="send-button">Enviar</button>
                     </div>
-                </main>
+                </div>
+
+                <div class="generated-scripts" style="display: none;">
+                    <h3>Scripts Gerados</h3>
+                    <div class="scripts-list" id="scripts-list"></div>
+                </div>
 
                 <footer>
                     <div class="status-bar">
@@ -87,14 +100,49 @@
                     </div>
                 </footer>
             </div>
-        </div>
+        </main>
 
         <!-- Botão Toggle Sidebar Mobile -->
-        <button class="toggle-sidebar action-btn">
+        <button class="toggle-sidebar">
             <i class="fas fa-bars"></i>
         </button>
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado com sucesso:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar o ServiceWorker:', error);
+                    });
+            });
+        }
+
+        // Solicitar permissão para notificações
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Permissão para notificações concedida');
+                    }
+                });
+            }
+        }
+
+        // Adicionar botão de instalação do PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Chamar função de permissão de notificações após carregar a página
+        window.addEventListener('load', requestNotificationPermission);
+    </script>
 </body>
 </html> 

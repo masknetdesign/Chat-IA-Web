@@ -385,23 +385,28 @@ footer {
 .app-layout {
     display: flex;
     min-height: 100vh;
+    position: relative;
 }
 
 .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: var(--sidebar-width);
-    background: white;
+    height: 100vh;
+    background-color: white;
     border-right: 1px solid var(--border-color);
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
-    gap: 1.5rem;
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 10;
+    transform: translateX(-100%);
     transition: transform 0.3s ease;
+    z-index: 999;
     box-shadow: var(--shadow-md);
+}
+
+.sidebar.active {
+    transform: translateX(0);
 }
 
 .sidebar-header {
@@ -520,7 +525,8 @@ footer {
 
 .main-content {
     flex: 1;
-    margin-left: var(--sidebar-width);
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
 }
 
 /* Botões de Ação */
@@ -601,70 +607,80 @@ footer {
     position: fixed;
     bottom: 1rem;
     right: 1rem;
-    z-index: 20;
     width: 48px;
     height: 48px;
     border-radius: 24px;
     background: var(--gradient);
     color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 997;
     box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
 }
 
-/* Responsive Design */
+.toggle-sidebar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-sidebar i {
+    font-size: 1.5rem;
+}
+
+/* Close button */
+.close-sidebar {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.close-sidebar:hover {
+    background-color: var(--background-color);
+}
+
+/* Media queries */
 @media (max-width: 1024px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.active {
-        transform: translateX(0);
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
-
     .toggle-sidebar {
         display: flex;
         align-items: center;
         justify-content: center;
     }
-}
-
-/* Ajustes para Mobile */
-@media (max-width: 768px) {
-    .action-buttons {
-        top: auto;
-        bottom: 5rem;
-        right: 1rem;
-        flex-direction: column;
-    }
-
-    .share-menu {
-        bottom: 100%;
-        top: auto;
-        right: 0;
-    }
 
     .sidebar {
-        transform: translateX(-100%);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    .sidebar.active {
-        transform: translateX(0);
+    .main-content {
+        margin-left: 0;
     }
+}
 
-    .chat-item-delete {
-        opacity: 1;
-        position: relative;
-        right: 0;
-        top: 0;
-        transform: none;
-    }
+/* Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 998;
+}
 
-    .chat-item {
-        padding-right: 3rem;
-    }
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Animações Adicionais */
@@ -711,4 +727,65 @@ footer {
 
 .new-chat-btn i {
     font-size: 1.1rem;
+}
+
+/* Estilos para PWA */
+.install-pwa-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.install-pwa-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.install-pwa-btn i {
+    font-size: 16px;
+}
+
+/* Estilos para modo offline */
+.offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #ff6b6b;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 14px;
+    z-index: 1000;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.offline-indicator.show {
+    transform: translateY(0);
+}
+
+/* Ajustes para modo standalone */
+@media all and (display-mode: standalone) {
+    .header {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .install-pwa-btn {
+        display: none;
+    }
 } 
