@@ -1,11 +1,11 @@
 {
-    "name": "Chat Assistente",
-    "short_name": "Chat",
+    "name": "Chat IA Web",
+    "short_name": "Chat IA",
     "description": "Assistente virtual com múltiplos modos de chat",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#4a90e2",
+    "theme_color": "#4f46e5",
     "orientation": "portrait",
     "icons": [
         {

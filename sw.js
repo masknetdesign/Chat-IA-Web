@@ -1,11 +1,18 @@
-const CACHE_NAME = 'chat-assistant-v1';
+const CACHE_NAME = 'chat-ia-v1';
 const urlsToCache = [
     '/',
     '/index.html',
     '/style.css',
     '/script.js',
     '/manifest.json',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
+    '/icons/icon-72x72.png',
+    '/icons/icon-96x96.png',
+    '/icons/icon-128x128.png',
+    '/icons/icon-144x144.png',
+    '/icons/icon-152x152.png',
+    '/icons/icon-192x192.png',
+    '/icons/icon-384x384.png',
+    '/icons/icon-512x512.png'
 ];
 
 // Instalação do Service Worker
@@ -26,6 +33,7 @@ self.addEventListener('activate', event => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheName !== CACHE_NAME) {
+                        console.log('Deletando cache antigo:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -36,33 +44,28 @@ self.addEventListener('activate', event => {
 
 // Interceptação de requisições
 self.addEventListener('fetch', event => {
-    // Não interceptar requisições para a API
-    if (event.request.url.includes('beta.sree.shop')) {
-        return;
-    }
-
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                // Cache hit - retornar resposta
+                // Cache hit - retorna a resposta do cache
                 if (response) {
                     return response;
                 }
 
-                // Clonar a requisição
+                // Clone da requisição
                 const fetchRequest = event.request.clone();
 
-                // Fazer requisição à rede
+                // Faz a requisição à rede
                 return fetch(fetchRequest).then(response => {
-                    // Verificar se recebemos uma resposta válida
+                    // Verifica se recebemos uma resposta válida
                     if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
                     }
 
-                    // Clonar a resposta
+                    // Clone da resposta
                     const responseToCache = response.clone();
 
-                    // Adicionar ao cache
+                    // Adiciona a resposta ao cache
                     caches.open(CACHE_NAME)
                         .then(cache => {
                             cache.put(event.request, responseToCache);
@@ -85,10 +88,14 @@ self.addEventListener('sync', event => {
 async function syncMessages() {
     try {
         const cache = await caches.open(CACHE_NAME);
-        const messages = await cache.match('/messages.json');
-        if (messages) {
-            // Implementar lógica de sincronização aqui
-            console.log('Sincronizando mensagens...');
+        const keys = await cache.keys();
+        
+        // Atualiza o cache com as novas mensagens
+        for (const request of keys) {
+            if (request.url.includes('/api/messages')) {
+                await cache.delete(request);
+                await cache.add(request);
+            }
         }
     } catch (error) {
         console.error('Erro na sincronização:', error);

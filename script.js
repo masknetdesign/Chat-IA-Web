@@ -20,6 +20,12 @@ let isStreaming = false;
 let deferredPrompt;
 let isOnline = navigator.onLine;
 
+// Configuração de notificações
+let notificationPermission = false;
+
+// Gerenciamento offline
+let pendingMessages = [];
+
 // Elementos do DOM
 const elements = {
     modeButtons: document.querySelectorAll('.mode-selector button'),
@@ -81,7 +87,7 @@ let chats = [];
 let currentChatId = null;
 
 // Inicialização
-function init() {
+async function init() {
     // Configurar eventos dos botões de modo
     elements.modeButtons.forEach(button => {
         button.addEventListener('click', () => setMode(button.dataset.mode));
@@ -148,6 +154,27 @@ function init() {
         if (window.innerWidth > 1024) {
             closeSidebar();
         }
+    });
+
+    // Solicitar permissão de notificação
+    await requestNotificationPermission();
+
+    // Registrar eventos de conexão
+    window.addEventListener('online', () => {
+        isOnline = true;
+        showNotification('Conexão restaurada', {
+            body: 'Você está online novamente. As mensagens pendentes serão enviadas.',
+            tag: 'connection-status'
+        });
+        sendPendingMessages();
+    });
+
+    window.addEventListener('offline', () => {
+        isOnline = false;
+        showNotification('Conexão perdida', {
+            body: 'Você está offline. As mensagens serão enviadas quando a conexão for restaurada.',
+            tag: 'connection-status'
+        });
     });
 }
 
@@ -833,16 +860,78 @@ function sendNotification(title, options = {}) {
     }
 }
 
-// Adicionar listeners para estado online/offline
-window.addEventListener('online', () => {
-    isOnline = true;
-    updateStatus('Online');
-});
+// Configuração de notificações
+async function requestNotificationPermission() {
+    try {
+        const permission = await Notification.requestPermission();
+        notificationPermission = permission === 'granted';
+        if (notificationPermission) {
+            console.log('Permissão de notificação concedida');
+        }
+    } catch (error) {
+        console.error('Erro ao solicitar permissão de notificação:', error);
+    }
+}
 
-window.addEventListener('offline', () => {
-    isOnline = false;
-    updateStatus('Offline - Algumas funcionalidades podem estar limitadas');
-});
+async function showNotification(title, options = {}) {
+    if (!notificationPermission) {
+        await requestNotificationPermission();
+    }
+
+    if (notificationPermission) {
+        try {
+            const notification = new Notification(title, {
+                icon: '/icons/icon-192x192.png',
+                badge: '/icons/icon-72x72.png',
+                ...options
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+        } catch (error) {
+            console.error('Erro ao mostrar notificação:', error);
+        }
+    }
+}
+
+// Gerenciamento offline
+async function sendPendingMessages() {
+    if (!isOnline || pendingMessages.length === 0) return;
+
+    for (const message of pendingMessages) {
+        try {
+            await sendMessage(message);
+            pendingMessages = pendingMessages.filter(m => m !== message);
+        } catch (error) {
+            console.error('Erro ao enviar mensagem pendente:', error);
+        }
+    }
+}
+
+// Modificar a função sendMessage para suportar modo offline
+async function sendMessage(message) {
+    if (!isOnline) {
+        pendingMessages.push(message);
+        showNotification('Mensagem pendente', {
+            body: 'Sua mensagem será enviada quando a conexão for restaurada.',
+            tag: 'pending-message'
+        });
+        return;
+    }
+
+    try {
+        // ... existing sendMessage code ...
+    } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+        pendingMessages.push(message);
+        showNotification('Erro ao enviar', {
+            body: 'Não foi possível enviar a mensagem. Ela será tentada novamente quando a conexão for restaurada.',
+            tag: 'error-message'
+        });
+    }
+}
 
 // Inicializar aplicação
 init(); 

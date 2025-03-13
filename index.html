@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4a90e2">
-    <meta name="description" content="Assistente virtual com múltiplos modos de chat">
-    <title>Chat IA Web</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Adicionar ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="Chat IA Web - Um assistente virtual inteligente">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Chat">
+    <meta name="apple-mobile-web-app-title" content="Chat IA">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
+    <title>Chat IA Web</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="app-layout">
@@ -25,7 +24,7 @@
         <!-- Sidebar com Histórico -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>Chat IA Web</h2>
+                <h2>Chat IA</h2>
                 <button class="close-sidebar">
                     <i class="fas fa-times"></i>
                 </button>
@@ -37,7 +36,7 @@
             </button>
             
             <div class="chat-history">
-                <!-- Histórico de chats será preenchido via JavaScript -->
+                <!-- Histórico de chats será inserido aqui -->
             </div>
         </aside>
 
@@ -73,7 +72,9 @@
                 </header>
 
                 <div class="chat-area">
-                    <div class="messages" id="messages"></div>
+                    <div class="messages" id="messages">
+                        <!-- Mensagens serão inseridas aqui -->
+                    </div>
                     
                     <div class="custom-settings" style="display: none;">
                         <input type="text" id="system-prompt" placeholder="Contexto do sistema (opcional)">
@@ -83,8 +84,10 @@
                     </div>
 
                     <div class="input-area">
-                        <textarea id="user-input" placeholder="Digite sua mensagem..." rows="3"></textarea>
-                        <button id="send-button">Enviar</button>
+                        <textarea id="userInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
+                        <button id="sendButton" class="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -110,7 +113,7 @@
 
     <script src="script.js"></script>
     <script>
-        // Registrar Service Worker
+        // Registrar o Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')

@@ -1,0 +1,23 @@
+{
+  "name": "beta",
+  "version": "1.0.0",
+  "main": "generate-icons.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masknetdesign/Chat-IA-Web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/masknetdesign/Chat-IA-Web/issues"
+  },
+  "homepage": "https://github.com/masknetdesign/Chat-IA-Web#readme",
+  "description": "",
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}
