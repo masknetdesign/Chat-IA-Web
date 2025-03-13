@@ -1,0 +1,39 @@
+'''
+Código gerado para: script para uma pagina de login/cadastro em html e css e javascript
+'''
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login e Cadastro</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Login e Cadastro</h1>
+
+        <div class="form-container">
+            <h2>Cadastre-se</h2>
+            <form id="registerForm">
+                <input type="email" id="regEmail" placeholder="Email" required>
+                <input type="password" id="regPassword" placeholder="Senha" required>
+                <button type="submit">Registrar</button>
+            </form>
+            <div id="registerMessage"></div>
+        </div>
+
+        <div class="form-container">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Senha" required>
+                <button type="submit">Entrar</button>
+            </form>
+            <div id="loginMessage"></div>
+        </div>
+    </div>
+    <script src="/static/scripts.js"></script>
+</body>
+</html>

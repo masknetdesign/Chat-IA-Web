@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat IA Web</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Adicionar ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar com Histórico -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Chat IA Web</h2>
+            </div>
+            
+            <button class="new-chat-btn">
+                <i class="fas fa-plus"></i>
+                Novo Chat
+            </button>
+            
+            <div class="chat-history">
+                <!-- Histórico de chats será preenchido via JavaScript -->
+            </div>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <div class="container">
+                <header>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="share-btn" title="Compartilhar">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <div class="share-menu">
+                            <div class="share-option" data-type="copy">
+                                <i class="fas fa-copy"></i>
+                                <span>Copiar Link</span>
+                            </div>
+                            <div class="share-option" data-type="export">
+                                <i class="fas fa-file-export"></i>
+                                <span>Exportar Chat</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h1>Chat IA Web</h1>
+                    <div class="mode-selector">
+                        <button class="active" data-mode="chat">Chat Normal</button>
+                        <button data-mode="stream">Chat Streaming</button>
+                        <button data-mode="tech">Chat Técnico</button>
+                        <button data-mode="custom">Chat Personalizado</button>
+                        <button data-mode="continuous">Chat Contínuo</button>
+                        <button data-mode="code">Gerador de Código</button>
+                    </div>
+                </header>
+
+                <main>
+                    <div class="chat-area">
+                        <div class="messages" id="messages"></div>
+                        
+                        <div class="custom-settings" style="display: none;">
+                            <input type="text" id="system-prompt" placeholder="Contexto do sistema (opcional)">
+                            <label>
+                                <input type="checkbox" id="use-stream"> Usar streaming
+                            </label>
+                        </div>
+
+                        <div class="input-area">
+                            <textarea id="user-input" placeholder="Digite sua mensagem..." rows="3"></textarea>
+                            <button id="send-button">Enviar</button>
+                        </div>
+                    </div>
+
+                    <div class="generated-scripts" style="display: none;">
+                        <h3>Scripts Gerados</h3>
+                        <div class="scripts-list" id="scripts-list"></div>
+                    </div>
+                </main>
+
+                <footer>
+                    <div class="status-bar">
+                        <span id="status">Pronto</span>
+                        <span id="mode-indicator">Modo: Chat Normal</span>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Botão Toggle Sidebar Mobile -->
+        <button class="toggle-sidebar action-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
